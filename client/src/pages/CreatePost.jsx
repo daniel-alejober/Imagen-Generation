@@ -23,9 +23,32 @@ const CreatePost = () => {
     setForm({ ...form, prompt: randomPrompt });
   };
 
-  const handleSubmit = (e) => {};
+  const generateImage = async () => {
+    if (form.prompt) {
+      try {
+        setGeneratingImg(true);
+        const response = await fetch("http://localhost:8080/api/v1/dalle", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ prompt: form.prompt }),
+        });
+        const data = await response.json();
 
-  const generateImage = () => {};
+        //*Configuracion de la foto para que pueda mostrarse en la etiqueta img
+        setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
+        setGeneratingImg(false);
+      } catch (error) {
+        console.log(error);
+        alert(error);
+        setGeneratingImg(false);
+      }
+    } else {
+      alert("Please enter a prompt");
+    }
+  };
+  const handleSubmit = (e) => {};
 
   return (
     <section className="max-w7xl mx-auto">
