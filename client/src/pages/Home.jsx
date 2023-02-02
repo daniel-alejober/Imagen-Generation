@@ -1,10 +1,61 @@
 import React, { useState, useEffect } from "react";
 import { Loader, Card, FormField } from "../components";
 
+const RenderCards = ({ data, title }) => {
+  if (data?.length > 0) {
+    return data.map((post) => <Card key={post._id} {...post} />);
+  }
+  return (
+    <h2 className="mt-5 font-bold text-[#6469ff] text-xl uppercase">{title}</h2>
+  );
+};
+
 const Home = () => {
   const [loading, setLoading] = useState(false);
-  const [allPosts, setAllPosts] = useState(null);
+  const [allPosts, setAllPosts] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [searchedResults, setSearchedResults] = useState([]);
+  const [searchTimeout, setSearchTimeout] = useState(null);
+
+  useEffect(() => {
+    const getAllPosts = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch("http://localhost:8080/api/v1/post", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await response.json();
+        if (data.success) {
+          setAllPosts(data.data.reverse());
+          setLoading(false);
+        }
+      } catch (error) {
+        console.log(error);
+        alert(error);
+        setLoading(false);
+      }
+    };
+    getAllPosts();
+  }, []);
+
+  const handleSearchchange = (e) => {
+    clearTimeout(searchTimeout);
+    setSearchText(e.target.value);
+
+    setSearchTimeout(
+      setTimeout(() => {
+        const searchResults = allPosts.filter(
+          (item) =>
+            item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+            item.prompt.toLowerCase().includes(searchText.toLowerCase())
+        );
+        setSearchedResults(searchResults);
+      }, 500)
+    );
+  };
 
   return (
     <section className="max-w-7xl mx-auto">
@@ -18,7 +69,14 @@ const Home = () => {
         </p>
       </div>
       <div className="mt-16 ">
-        <FormField />
+        <FormField
+          handleChange={handleSearchchange}
+          value={searchText}
+          labelName="Search Posts"
+          type="text"
+          name="text"
+          placeholder="Search Post by User or Prompt"
+        />
       </div>
       <div className="mt-10">
         {loading ? (
@@ -33,7 +91,16 @@ const Home = () => {
                 <span className="text-[#222328]">{searchText}</span>{" "}
               </h2>
             )}
-            <div className="grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3"></div>
+            <div className="grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3">
+              {searchText ? (
+                <RenderCards
+                  data={searchedResults}
+                  title="No Search Results Found"
+                />
+              ) : (
+                <RenderCards data={allPosts} title="No Posts Yet" />
+              )}
+            </div>
           </>
         )}
       </div>

@@ -48,7 +48,33 @@ const CreatePost = () => {
       alert("Please enter a prompt");
     }
   };
-  const handleSubmit = (e) => {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (form.prompt && form.photo && form.name) {
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:8080/api/v1/post", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setLoading(false);
+          navigate("/");
+        }
+      } catch (error) {
+        console.log(error);
+        alert(error);
+        setLoading(false);
+      }
+    } else {
+      alert("All fields are required");
+    }
+  };
 
   return (
     <section className="max-w7xl mx-auto">
