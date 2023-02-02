@@ -27,13 +27,16 @@ const CreatePost = () => {
     if (form.prompt) {
       try {
         setGeneratingImg(true);
-        const response = await fetch("http://localhost:8080/api/v1/dalle", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ prompt: form.prompt }),
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_PRODUCCION}/api/v1/dalle`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ prompt: form.prompt }),
+          }
+        );
         const data = await response.json();
 
         //*Configuracion de la foto para que pueda mostrarse en la etiqueta img
@@ -54,13 +57,16 @@ const CreatePost = () => {
     if (form.prompt && form.photo && form.name) {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:8080/api/v1/post", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_PRODUCCION}/api/v1/post`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(form),
+          }
+        );
         const data = await response.json();
         if (data.success) {
           setLoading(false);
